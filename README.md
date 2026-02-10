@@ -8,4 +8,4 @@
 
 - [ ] **Add game select menu**: Implement game select menu from _Triple Treat_
 
-- [ ] **Implement Objects from other games**: Implement game objects from _Experiments_ and _Time Travel_ and make them compatible with other objects (example: make rope guns compatible with multiple candies, their parts and lamps)
+- [ ] **Implement Objects from other games**: Implement game objects from _Experiments_ and _Time Travel_ and make them compatible with other objects _(example: make rope guns compatible with multiple candies, their parts, lamps, axes, etc.)_
