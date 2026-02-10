@@ -6,6 +6,6 @@
 
 ## Todo
 
-- [ ] **Add game select menu**: Implement game select menu from _Triple Treat_ and add "+" button which make your own map pack (but you will need to work with files like in Mari0 AE)
+- [ ] **Add game select menu**: Implement game select menu from _Triple Treat_ and add "+" button which makes your own map pack (but you will need to work with files like in Mari0 AE)
 
 - [ ] **Implement Objects from other games**: Implement game objects from _Experiments_ and _Time Travel_ and make them compatible with other objects _(example: make rope guns compatible with multiple candies, their parts, lamps, axes, etc.)_
