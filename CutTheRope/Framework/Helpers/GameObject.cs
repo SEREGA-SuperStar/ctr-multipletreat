@@ -181,20 +181,20 @@ namespace CutTheRope.Framework.Helpers
 
         public virtual void DrawBB()
         {
-            OpenGLRenderer.GlDisable(OpenGLRenderer.GL_TEXTURE_2D);
+            Renderer.Disable(Renderer.GL_TEXTURE_2D);
             if (rotatedBB)
             {
-                OpenGLRenderer.DrawSegment(drawX + rbb.tlX, drawY + rbb.tlY, drawX + rbb.trX, drawY + rbb.trY, RGBAColor.redRGBA);
-                OpenGLRenderer.DrawSegment(drawX + rbb.trX, drawY + rbb.trY, drawX + rbb.brX, drawY + rbb.brY, RGBAColor.redRGBA);
-                OpenGLRenderer.DrawSegment(drawX + rbb.brX, drawY + rbb.brY, drawX + rbb.blX, drawY + rbb.blY, RGBAColor.redRGBA);
-                OpenGLRenderer.DrawSegment(drawX + rbb.blX, drawY + rbb.blY, drawX + rbb.tlX, drawY + rbb.tlY, RGBAColor.redRGBA);
+                Renderer.DrawSegment(drawX + rbb.tlX, drawY + rbb.tlY, drawX + rbb.trX, drawY + rbb.trY, RGBAColor.redRGBA);
+                Renderer.DrawSegment(drawX + rbb.trX, drawY + rbb.trY, drawX + rbb.brX, drawY + rbb.brY, RGBAColor.redRGBA);
+                Renderer.DrawSegment(drawX + rbb.brX, drawY + rbb.brY, drawX + rbb.blX, drawY + rbb.blY, RGBAColor.redRGBA);
+                Renderer.DrawSegment(drawX + rbb.blX, drawY + rbb.blY, drawX + rbb.tlX, drawY + rbb.tlY, RGBAColor.redRGBA);
             }
             else
             {
-                GLDrawer.DrawRect(drawX + bb.x, drawY + bb.y, bb.w, bb.h, RGBAColor.redRGBA);
+                DrawHelper.DrawRect(drawX + bb.x, drawY + bb.y, bb.w, bb.h, RGBAColor.redRGBA);
             }
-            OpenGLRenderer.GlEnable(OpenGLRenderer.GL_TEXTURE_2D);
-            OpenGLRenderer.GlColor4f(Color.White);
+            Renderer.Enable(Renderer.GL_TEXTURE_2D);
+            Renderer.SetColor(Color.White);
         }
 
         public static bool ObjectsIntersect(GameObject o1, GameObject o2)
@@ -204,6 +204,19 @@ namespace CutTheRope.Framework.Helpers
             float num3 = o2.drawX + o2.bb.x;
             float num4 = o2.drawY + o2.bb.y;
             return RectInRect(num, num2, num + o1.bb.w, num2 + o1.bb.h, num3, num4, num3 + o2.bb.w, num4 + o2.bb.h);
+        }
+
+        public static bool ObjectsIntersectRotatedWithUnrotated(GameObject o1, GameObject o2)
+        {
+            Vector vector = Vect(o1.drawX + o1.rbb.tlX, o1.drawY + o1.rbb.tlY);
+            Vector vector2 = Vect(o1.drawX + o1.rbb.trX, o1.drawY + o1.rbb.trY);
+            Vector vector3 = Vect(o1.drawX + o1.rbb.brX, o1.drawY + o1.rbb.brY);
+            Vector vector4 = Vect(o1.drawX + o1.rbb.blX, o1.drawY + o1.rbb.blY);
+            Vector vector5 = Vect(o2.drawX + o2.bb.x, o2.drawY + o2.bb.y);
+            Vector vector6 = Vect(o2.drawX + o2.bb.x + o2.bb.w, o2.drawY + o2.bb.y);
+            Vector vector7 = Vect(o2.drawX + o2.bb.x + o2.bb.w, o2.drawY + o2.bb.y + o2.bb.h);
+            Vector vector8 = Vect(o2.drawX + o2.bb.x, o2.drawY + o2.bb.y + o2.bb.h);
+            return ObbInOBB(vector, vector2, vector3, vector4, vector5, vector6, vector7, vector8);
         }
 
         public static bool PointInObject(Vector p, GameObject o)

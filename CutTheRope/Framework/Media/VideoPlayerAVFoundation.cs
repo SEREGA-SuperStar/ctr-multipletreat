@@ -1,6 +1,7 @@
 #if MACOS_AVFOUNDATION
 using System;
 using System.IO;
+using System.Threading;
 
 using AVFoundation;
 
@@ -39,18 +40,14 @@ namespace CutTheRope.Framework.Media
             Console.WriteLine($"[AVFoundation] Play requested: {moviePath}, mute={mute}");
 
             Cleanup();
-            playbackFinished = false;
+            HasPlaybackFinished = false;
             frameCount = 0;
             playStartTime = null;
             loggedFirstFrame = false;
 
             string basePath = NSBundle.MainBundle.ResourcePath;
-            string relativeVideoPath = ContentPaths.GetVideoPath($"{moviePath}");
-            string fullPath = Path.Combine(
-                basePath,
-                ContentPaths.RootDirectory,
-                ContentPaths.GetRelativePathWithContentFolder(relativeVideoPath)
-            );
+            string relativeVideoPath = ContentPaths.GetVideoPath(moviePath);
+            string fullPath = Path.Combine(basePath, ContentPaths.RootDirectory, relativeVideoPath);
 
             if (!File.Exists(fullPath))
             {
@@ -94,9 +91,9 @@ namespace CutTheRope.Framework.Media
         /// <inheritdoc/>
         public Texture2D GetTexture()
         {
-            if (player == null || videoOutput == null || playbackFinished)
+            if (player == null || videoOutput == null || HasPlaybackFinished)
             {
-                Console.WriteLine($"[AVFoundation] GetTexture early return: player={player != null}, videoOutput={videoOutput != null}, playbackFinished={playbackFinished}, videoTexture={videoTexture != null}");
+                Console.WriteLine($"[AVFoundation] GetTexture early return: player={player != null}, videoOutput={videoOutput != null}, playbackFinished={HasPlaybackFinished}, videoTexture={videoTexture != null}");
                 return videoTexture;
             }
 
@@ -171,20 +168,20 @@ namespace CutTheRope.Framework.Media
         /// <inheritdoc/>
         public void Stop()
         {
-            if (player == null || playbackFinished)
+            if (player == null || HasPlaybackFinished)
             {
                 return;
             }
 
             Console.WriteLine("[AVFoundation] Stop");
-            playbackFinished = true;
+            HasPlaybackFinished = true;
             player.Pause();
         }
 
         /// <inheritdoc/>
         public void Pause()
         {
-            if (player == null || playbackFinished || IsPaused)
+            if (player == null || HasPlaybackFinished || IsPaused)
             {
                 return;
             }
@@ -197,7 +194,7 @@ namespace CutTheRope.Framework.Media
         /// <inheritdoc/>
         public void Resume()
         {
-            if (player == null || playbackFinished || !IsPaused)
+            if (player == null || HasPlaybackFinished || !IsPaused)
             {
                 return;
             }
@@ -224,7 +221,7 @@ namespace CutTheRope.Framework.Media
         /// <inheritdoc/>
         public void Update()
         {
-            if (!waitForStart && playbackFinished)
+            if (!waitForStart && HasPlaybackFinished)
             {
                 Console.WriteLine($"[AVFoundation] Update: triggering cleanup, videoTexture={videoTexture != null}");
                 Cleanup();
@@ -326,7 +323,7 @@ namespace CutTheRope.Framework.Media
         private void OnPlaybackFinished()
         {
             Console.WriteLine($"[AVFoundation] Playback finished, videoTexture={videoTexture != null}");
-            playbackFinished = true;
+            HasPlaybackFinished = true;
         }
 
         /// <summary>
@@ -362,7 +359,7 @@ namespace CutTheRope.Framework.Media
             frameCount = 0;
             playStartTime = null;
             waitForStart = false;
-            playbackFinished = false;
+            HasPlaybackFinished = false;
         }
 
         /// <summary>The AVFoundation media player instance.</summary>
@@ -398,8 +395,12 @@ namespace CutTheRope.Framework.Media
         /// <summary>Indicates the player is waiting for Start() to be called.</summary>
         private bool waitForStart;
 
-        /// <summary>Indicates playback has finished.</summary>
-        private volatile bool playbackFinished;
+        /// <summary>Thread-safe accessor for the playback-finished flag.</summary>
+        private bool HasPlaybackFinished
+        {
+            get => Volatile.Read(ref field);
+            set => Volatile.Write(ref field, value);
+        }
 
         /// <summary>Whether the first frame has been logged for debugging.</summary>
         private bool loggedFirstFrame;
